@@ -19,6 +19,15 @@ final class BlogApi
         return AuthorNames::of(AuthorName::of($status === null ? 'everyone' : $status->value));
     }
 
+    #[Operation(path: '/drafts', method: 'GET', summary: 'Search authors')]
+    public function searchAuthors(AuthorFilter|null $filter = null): AuthorNames
+    {
+        if ($filter === null) {
+            return AuthorNames::of(AuthorName::of('everyone'));
+        }
+        return AuthorNames::of(AuthorName::of(($filter->status->value ?? 'any') . ':' . ($filter->minPosts->value ?? 0)));
+    }
+
     #[Operation(path: '/authors/{name}', method: 'GET')]
     public function getAuthor(AuthorName $name): Author
     {
