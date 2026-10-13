@@ -72,6 +72,15 @@ final class RequestHandlingTest extends TestCase
         self::assertSame(['everyone'], $this->decoded($this->handle('GET', '/authors')));
     }
 
+    public function testADeepObjectQueryParameterArrivesAsItsObject(): void
+    {
+        self::assertSame(['draft:2'], $this->decoded($this->handle('GET', '/drafts?filter[status]=draft&filter[minPosts]=2')));
+        self::assertSame(['published:0'], $this->decoded($this->handle('GET', '/drafts?filter[status]=published')));
+        self::assertSame(['everyone'], $this->decoded($this->handle('GET', '/drafts')));
+        self::assertSame(400, $this->handle('GET', '/drafts?filter[minPosts]=-1')->getStatusCode());
+        self::assertSame(400, $this->handle('GET', '/drafts?filter[unknown]=1')->getStatusCode());
+    }
+
     /**
      * The other half of the header the document describes: the value goes out through the very binding that
      * schema came from, so a `AuthorName` reaches the wire as the string its schema says it is.

@@ -41,6 +41,7 @@ use Neos\OpenApi\Spec\SecurityRequirementObject;
 use Neos\OpenApi\Support\HttpStatusCode;
 use Neos\OpenApi\Support\MediaTypeRange;
 use Neos\OpenApi\Support\ParameterLocation;
+use Neos\OpenApi\Support\ParameterStyle;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionMethod;
 use ReflectionNamedType;
@@ -191,12 +192,18 @@ final readonly class ApiCompiler
                 );
                 continue;
             }
+            // an object in the query string is what PHP parses `filter[status]=draft` into, which is OpenAPI's
+            // `deepObject` style — its default for queries, `form`, would spread the members into parameters of
+            // their own that nothing reads
+            $deepObject = $classified->source === ArgumentSource::query && TypeBinding::isObject($classified->binding->type);
             $parameters[] = new ParameterObject(
                 name: $classified->binding->wireName,
                 in: self::locationOf($classified->source),
                 description: $classified->description,
                 required: $classified->binding->required ?: null,
                 deprecated: $classified->deprecated,
+                style: $deepObject ? ParameterStyle::deepObject : null,
+                explode: $deepObject ? true : null,
                 schema: TypeBinding::jsonSchema($classified->binding->type, $components),
             );
         }

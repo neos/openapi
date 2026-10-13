@@ -111,6 +111,9 @@ Nothing is inferred from position. An argument's source is decided by what it ca
 An argument with a default is an optional parameter, and stays optional all the way through: if the request omits
 it, it is left out of the call and the method's own default applies.
 
+A query parameter whose type is an object is read from brackets, `?filter[status]=draft&filter[minPosts]=2` for an
+argument `$filter`, and documented with OpenAPI's `deepObject` style, so clients send it that way.
+
 ```php
 // ...
 use Neos\OpenApi\Attributes\Parameter;

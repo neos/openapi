@@ -59,7 +59,7 @@ final class CompilationTest extends TestCase
         $schemas = $this->arrayAt($this->compile(), 'components', 'schemas');
 
         self::assertSame(
-            ['Author', 'AuthorName', 'AuthorNames', 'PostCount', 'PostStatus', 'ProblemDocument'],
+            ['Author', 'AuthorFilter', 'AuthorName', 'AuthorNames', 'PostCount', 'PostStatus', 'ProblemDocument'],
             array_keys($schemas),
         );
     }
@@ -117,6 +117,27 @@ final class CompilationTest extends TestCase
             $this->arrayAt($parameter, 'schema'),
         );
         self::assertSame(['draft', 'published'], $this->arrayAt($document, 'components', 'schemas', 'PostStatus', 'enum'));
+    }
+
+    /**
+     * PHP parses `filter[status]=draft` into an array, which is OpenAPI's `deepObject` style. Its default for a
+     * query parameter, `form`, would have clients send every member as a parameter of its own.
+     */
+    public function testAnObjectQueryParameterIsADeepObject(): void
+    {
+        $parameter = $this->arrayAt($this->compile(), 'paths', '/drafts', 'get', 'parameters', 0);
+
+        self::assertSame('filter', $parameter['name']);
+        self::assertSame('deepObject', $parameter['style'] ?? null);
+        self::assertTrue($parameter['explode'] ?? null);
+    }
+
+    public function testAScalarQueryParameterKeepsTheDefaultStyle(): void
+    {
+        $parameter = $this->arrayAt($this->compile(), 'paths', '/authors', 'get', 'parameters', 0);
+
+        self::assertArrayNotHasKey('style', $parameter);
+        self::assertArrayNotHasKey('explode', $parameter);
     }
 
     public function testAPathParameterIsRequiredAndReferencesItsType(): void

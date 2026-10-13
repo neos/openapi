@@ -7,6 +7,7 @@ namespace Neos\OpenApi\Binding;
 use Neos\JsonSchema\BooleanSchema;
 use Neos\JsonSchema\IntegerSchema;
 use Neos\JsonSchema\NumberSchema;
+use Neos\JsonSchema\ObjectSchema;
 use Neos\JsonSchema\ProvidesSchema;
 use Neos\JsonSchema\Schema as JsonSchema;
 use Neos\JsonSchema\StringSchema;
@@ -53,6 +54,14 @@ final class TypeBinding
     public static function jsonSchema(TypeReference $type, SchemaComponents $components): JsonSchema
     {
         return SchemaHoister::hoist($type, self::schemaFor($type), $components);
+    }
+
+    /**
+     * Whether a value of this type is a JSON object, which a request parameter can only carry in a style of its own
+     */
+    public static function isObject(TypeReference $type): bool
+    {
+        return self::schemaFor($type) instanceof ObjectSchema;
     }
 
     /**
