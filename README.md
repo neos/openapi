@@ -1,5 +1,8 @@
 # OpenApi
 
+> [!WARNING]
+> At this stage, this package is **experimental** and subject to change!
+
 Describe an HTTP API as ordinary PHP methods, get an [OpenAPI 3.1](https://www.openapis.org/) document out of it,
 and serve those methods over PSR-7.
 
